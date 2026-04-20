@@ -1,0 +1,7 @@
+.leaflet-routing-container {
+  background: white;
+  padding: 6px;
+  border-radius: 5px;
+  font: 12px/1.5 "Helvetica Neue", Arial, Helvetica, sans-serif;
+  box-shadow: 0 0 15px rgba(0,0,0,0.2);
+}

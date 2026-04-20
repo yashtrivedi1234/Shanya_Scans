@@ -1,0 +1,276 @@
+import 'package:flutter/material.dart';
+import 'package:shanya_scans/screen/packages/model/PackageListByTabIdModel.dart';
+import 'package:shanya_scans/ui_helper/responsive_helper.dart';
+import 'package:shanya_scans/base_widgets/solid_rounded_button.dart';
+
+import '../../../ui_helper/app_colors.dart';
+import '../../../ui_helper/app_text_styles.dart';
+import 'nav_package_detail.dart';
+
+class CellNavPackageListItem extends StatelessWidget {
+  final Data item;
+  final double borderRadius;
+  final double elevation;
+  final Color backgroundColor;
+  final Color borderColor; // New for stroke color
+  final double borderWidth; // New for stroke width
+  final EdgeInsetsGeometry? padding;
+  final EdgeInsetsGeometry? margin;
+  final GestureTapCallback? onTap;
+
+  const CellNavPackageListItem({
+    Key? key,
+    required this.item,
+    required this.borderRadius,
+    required this.elevation,
+    required this.backgroundColor,
+    required this.borderColor,
+    required this.borderWidth,
+    this.padding,
+    this.margin,
+    this.onTap,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final bool isTablet = screenWidth > 600;
+    return Card(
+      elevation: elevation,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(borderRadius),
+        side: BorderSide(
+          color: borderColor,
+          width: borderWidth,
+        ), // Add stroke with rounded corners
+      ),
+      margin: margin,
+      color: backgroundColor,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(borderRadius),
+        // Matches the card radius
+        splashColor: AppColors.primary.withOpacity(0.2),
+        // Ripple color
+        highlightColor: AppColors.primary.withOpacity(0.1),
+        child: Padding(
+          padding: padding ?? const EdgeInsets.all(15.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+             Padding(
+               padding: const EdgeInsets.all(8.0),
+               child: Column(
+
+                 crossAxisAlignment: CrossAxisAlignment.start,
+                 children: [
+                   Text(
+                     item.packageName.toString(),
+                     style: AppTextStyles.heading1(context,
+                         overrideStyle: TextStyle(
+                             fontSize: ResponsiveHelper.fontSize(context, 14))),
+                   ),
+                   SizedBox(height: 5),
+                   Text(
+                     "${item.parameterInclude.toString()} test included",
+                     style: AppTextStyles.bodyText1(
+                       context,
+                       overrideStyle: AppTextStyles.bodyText1(context,
+                           overrideStyle: TextStyle(
+                               fontSize: ResponsiveHelper.fontSize(context, 12))),
+                     ),
+                   ),
+                   SizedBox(height: 10),
+                   Row(
+                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                     children: [
+                       Column(
+                         crossAxisAlignment: CrossAxisAlignment.start,
+                         children: [
+                           Row(
+                             children: [
+                               if (item.packageRate != null &&
+                                   item.packageDiscount != null &&
+                                   item.packageRate.toString() != item.packageDiscount.toString()) ...[
+                                 // Discounted Price (strike-through)
+                                 Text(
+                                   "\u20B9${item.packageDiscount}",
+                                   style: AppTextStyles.heading1(
+                                     context,
+                                     overrideStyle: TextStyle(
+                                       color: Colors.grey,
+                                       decoration: TextDecoration.lineThrough,
+                                       fontSize: ResponsiveHelper.fontSize(context, 12),
+                                     ),
+                                   ),
+                                 ),
+                                 SizedBox(width: 8),
+                               ],
+
+                               // Actual Price (always show)
+                               RichText(
+                                 text: TextSpan(
+                                   children: [
+                                     TextSpan(
+                                       text: "\u20B9 ",
+                                       style: AppTextStyles.heading1(
+                                         context,
+                                         overrideStyle: TextStyle(
+                                           color: AppColors.primary,
+                                           fontSize: ResponsiveHelper.fontSize(context, 14),
+                                         ),
+                                       ),
+                                     ),
+                                     TextSpan(
+                                       text: item.packageRate?.toString() ??
+                                           item.packageDiscount?.toString() ??
+                                           "",
+                                       style: AppTextStyles.heading1(
+                                         context,
+                                         overrideStyle: TextStyle(
+                                           color: AppColors.primary,
+                                           fontSize: ResponsiveHelper.fontSize(context, 14),
+                                         ),
+                                       ),
+                                     ),
+                                     TextSpan(
+                                       text: " /-",
+                                       style: AppTextStyles.heading1(
+                                         context,
+                                         overrideStyle: TextStyle(
+                                           color: AppColors.primary,
+                                           fontSize: ResponsiveHelper.fontSize(context, 11),
+                                         ),
+                                       ),
+                                     ),
+                                   ],
+                                 ),
+                               ),
+                             ],
+                           ),
+                           // Text(
+                           //   item['discount'],
+                           //   style: AppTextStyles.heading1(context,
+                           //       overrideStyle: TextStyle(
+                           //         color: AppColors.pinkColor,
+                           //           fontSize: ResponsiveHelper.fontSize(
+                           //               context, 12))),
+                           // ),
+                         ],
+                       ),
+                       Padding( // Add padding around the button if needed for spacing
+                         padding: const EdgeInsets.only(left: 8.0), // Spacing from text
+                         child: ConstrainedBox( // Use ConstrainedBox for min/max width
+                           constraints: BoxConstraints(
+                             minWidth: ResponsiveHelper.containerWidth(context, isTablet ? 15 : 20), // Adjust min width for tablets
+                             maxWidth: ResponsiveHelper.containerWidth(context, isTablet ? 25 : 30), // Adjust max width for tablets
+                             minHeight: ResponsiveHelper.containerHeight(context, isTablet ? 4.0 : 3.5), // Adjust min height
+                             maxHeight: ResponsiveHelper.containerHeight(context, isTablet ? 4.5 : 4.0), // Adjust max height
+                           ),
+                           child: SolidRoundedButton(
+                             text: 'Buy Now',
+                             color: AppColors.primary,
+                             borderRadius: 10.0,
+                             onPressed: () {
+                               print('Button clicked: ${item.slug}');
+                               Navigator.push(
+                                 context,
+                                 MaterialPageRoute(
+                                   builder: (context) =>
+                                       ViewDetailBottomNavPackageScreen(
+                                         packagetName: item.packageName.toString(),
+                                         packageSlug: item.slug.toString(),
+                                       ),
+                                 ),
+                               );
+                             },
+                             textStyle: TextStyle(
+                               color: Colors.white,
+                               fontSize: ResponsiveHelper.fontSize(context, isTablet ? 12 : 14), // Make font size responsive
+                             ),
+                             padding: EdgeInsets.symmetric(horizontal: ResponsiveHelper.containerWidth(context, isTablet ? 2 : 3)), // Adjust horizontal padding
+                           ),
+                         ),
+                       ),
+                     ],
+                   ),
+                   SizedBox(height: 10),
+                 ],
+               ),
+             ),
+              // Divider(
+              //   color: AppColors.txtLightGreyColor.withValues(alpha: 0.2),
+              // ),
+              // fasting required ror
+              Container(
+                padding: ResponsiveHelper.padding(context, 3, 1), // Add padding for spacing
+                decoration: BoxDecoration(
+                  color: AppColors.lightBlueColor,
+                    borderRadius: BorderRadius.only(bottomLeft: Radius.circular(10),bottomRight: Radius.circular(10)),
+                ),
+                child:   Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Flexible(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Icon(Icons.timer, size: 18, color: Colors.grey),
+                          SizedBox(width: 2),
+                          Flexible(
+                            child: Text(
+                              item.fasting ?? "N/A",
+                              style: AppTextStyles.heading2(
+                                context,
+                                overrideStyle: TextStyle(
+                                  fontSize: ResponsiveHelper.fontSize(context, 10),
+                                ),
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 2,
+                              softWrap: true,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Flexible(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        // Align to the end
+                        children: [
+                          Icon(Icons.access_time,
+                              size: 18, color: Colors.grey),
+                          SizedBox(width: 2),
+                          Flexible(
+                            child: Text(
+                              "Reports within ${item.report} hours",
+                              // "${rateListItem.reportTime}",
+                              style: AppTextStyles.heading2(
+                                context,
+                                overrideStyle: TextStyle(
+                                  fontSize:
+                                  ResponsiveHelper.fontSize(context, 10),
+                                ),
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 2,
+                              softWrap: true,
+                              textAlign:
+                              TextAlign.start, // Align text to the right
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
